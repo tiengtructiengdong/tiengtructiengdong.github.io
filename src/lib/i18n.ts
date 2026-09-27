@@ -1,175 +1,121 @@
 /**
  * i18n.ts
- * Minimal i18n utility for the portfolio site.
+ * i18next-based internationalization for the portfolio site.
  *
- * Supports SSR (Astro .astro files) and CSR (React islands).
+ * Follows the "mini" repo pattern: a single i18next instance is the source of
+ * truth for the active language, react-i18next makes islands reactive, and
+ * `setGlobalLocale()` switches the language globally (persisted to localStorage
+ * and reflected by every `useTranslation()` consumer).
  *
- * Usage (Astro):
- *   import { t, localeFromUrl } from "@lib/i18n";
- *   const locale = localeFromUrl(Astro.url);
- *   t(locale, "nav.work")  // => "Work"
- *
- * Usage (React):
- *   import { t, useLocale } from "@lib/i18n";
- *   t(useLocale(), "nav.work")
- *
- * The t() function signature takes the locale as the first argument
- * so it works identically in both SSR and CSR contexts without hooks.
- *
- * On the client, locales are auto-registered from the bundled JSON files
- * so that React islands can translate without needing a server-side
- * registerLocale call.
+ * Adapted for Astro SSR: locale resources are bundled STATICALLY rather than
+ * loaded lazily via `resourcesToBackend`. The lazy backend is asynchronous, so
+ * on the client it would race the first render (raw keys flashing) and on the
+ * server it would break the synchronous `useTranslations(locale)` calls in
+ * `.astro` files. Static resources make translation resolve synchronously
+ * everywhere.
  */
-
-// --------------- Types ---------------
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import en from "../locales/en.json";
+import ja from "../locales/ja.json";
+import ko from "../locales/ko.json";
+import vi from "../locales/vi.json";
 
 export type Locale = "en" | "ja" | "ko" | "vi";
 
-export interface LocaleStrings {
-  [key: string]: string | LocaleStrings;
+const STORAGE_KEY = "portfolio-lang";
+const SUPPORTED: readonly Locale[] = ["en", "ja", "ko", "vi"];
+
+function isLocale(value: string | null): value is Locale {
+  return value !== null && (SUPPORTED as readonly string[]).includes(value);
 }
 
-// --------------- Registry ---------------
-
-const _registry = new Map<Locale, LocaleStrings>();
-
-/**
- * Register a locale's strings. Idempotent — safe to call multiple times.
- */
-export function registerLocale(locale: Locale, strings: LocaleStrings): void {
-  if (!_registry.has(locale)) {
-    _registry.set(locale, strings);
-  }
-}
-
-// --------------- Client-side auto-registration ---------------
-
-let _initialized = false;
-
-/**
- * On the client, eagerly import and register all locale JSON files so that
- * the t() function works without a prior registerLocale() call from an
- * Astro layout. On the server this is a no-op — base-layout.astro handles
- * registration.
- */
-function ensureLocales(): void {
-  if (_initialized) {
-    return;
-  }
-  _initialized = true;
-
-  if (typeof window === "undefined") {
-    // Server-side: registration is handled by base-layout.astro
-    return;
-  }
-
-  // Client-side: dynamically import all locale JSON files and register them.
-  // Vite will bundle these into the client chunk that imports this module.
-  Promise.all([
-    import("../locales/en.json").then((m) =>
-      registerLocale("en", m.default ?? m),
-    ),
-    import("../locales/ja.json").then((m) =>
-      registerLocale("ja", m.default ?? m),
-    ),
-    import("../locales/ko.json").then((m) =>
-      registerLocale("ko", m.default ?? m),
-    ),
-    import("../locales/vi.json").then((m) =>
-      registerLocale("vi", m.default ?? m),
-    ),
-  ]).catch(() => {
-    // Silently fail — t() will return keys as fallback
-  });
-}
-
-// Kick off registration immediately on module load (client-side only).
-// The dynamic imports are hoisted by Vite into the importing chunk.
-if (typeof window !== "undefined") {
-  ensureLocales();
-}
-
-// --------------- Translation function ---------------
-
-/**
- * Resolve a dot-separated key against a nested locale object.
- * e.g. resolve(strings, "nav.work") => strings["nav"]["work"]
- */
-function resolve(obj: LocaleStrings, key: string): string {
-  const parts = key.split(".");
-  let current: unknown = obj;
-  for (const part of parts) {
-    if (current == null || typeof current !== "object") {
-      return key;
-    }
-    current = (current as Record<string, unknown>)[part];
-  }
-  return typeof current === "string" ? current : key;
-}
-
-/**
- * Translate a key for the given locale.
- *
- * @param locale - The target locale.
- * @param key    - Dot-separated key, e.g. "nav.work".
- * @returns      The translated string, or the key itself if not found.
- */
-export function t(locale: Locale, key: string): string {
-  const strings = _registry.get(locale) ?? _registry.get("en");
-  if (!strings) {
-    return key;
-  }
-  return resolve(strings, key);
-}
-
-/**
- * Detect locale from localStorage (where atomWithStorage persists it).
- * Falls back to "en".
- */
-export function useLocale(): Locale {
+/** Read the persisted locale (client) or default to "en" (server). */
+function getInitialLocale(): Locale {
   if (typeof window === "undefined") {
     return "en";
   }
   try {
-    const stored = localStorage.getItem("portfolio-lang");
-    if (
-      stored === "ja" ||
-      stored === "ko" ||
-      stored === "vi" ||
-      stored === "en"
-    )
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    if (isLocale(stored)) {
       return stored;
+    }
   } catch {
     // localStorage may be unavailable (private browsing, etc.)
   }
   return "en";
 }
 
+const resources = {
+  en: { translation: en },
+  ja: { translation: ja },
+  ko: { translation: ko },
+  vi: { translation: vi },
+};
+
+if (!i18n.isInitialized) {
+  i18n.use(initReactI18next).init({
+    resources,
+    lng: getInitialLocale(),
+    fallbackLng: "en",
+    supportedLngs: [...SUPPORTED],
+    interpolation: { escapeValue: false },
+    // Avoid React Suspense during SSR / lazy resource loading; resources are
+    // static so `ready` is true immediately.
+    react: { useSuspense: false },
+  });
+
+  // Persist language changes so the preference survives reloads.
+  i18n.on("languageChanged", (lng: string) => {
+    if (typeof window === "undefined" || !isLocale(lng)) {
+      return;
+    }
+    try {
+      window.localStorage.setItem(STORAGE_KEY, lng);
+    } catch {
+      // ignore storage errors (private browsing, quota, etc.)
+    }
+  });
+}
+
+export default i18n;
+
+// Re-export the reactive hook so importing it from "@lib/i18n" also guarantees
+// the i18next instance is initialized in that client chunk.
+export { useTranslation } from "react-i18next";
+
 /**
- * Detect locale from Astro's URL (server-side).
+ * Switch the active language globally. Persists the choice to localStorage
+ * and re-renders every `useTranslation()` consumer.
  */
+export function setGlobalLocale(locale: Locale): void {
+  i18n.changeLanguage(locale);
+}
+
+/**
+ * Synchronous translation bound to an explicit locale.
+ *
+ * SSR-safe: used by `.astro` files where the locale comes from the URL/props
+ * (not from the i18next singleton). Reactive client islands should prefer
+ * `useTranslation()` instead.
+ *
+ * Returns a bound `t` function so call sites read `t("key")` instead of
+ * repeating the locale on every call.
+ */
+export function useTranslations(locale: Locale) {
+  return i18n.getFixedT(locale);
+}
+
+/** Detect locale from Astro's URL (server-side). */
 export function localeFromUrl(url: URL): Locale {
   const lang = url.searchParams.get("lang");
-  if (lang === "ja" || lang === "ko" || lang === "vi" || lang === "en")
+  if (isLocale(lang)) {
     return lang;
+  }
   return "en";
 }
 
-/**
- * Get the <html lang=""> attribute value for a locale.
- */
+/** Get the <html lang=""> attribute value for a locale. */
 export function langAttr(locale: Locale): string {
   return locale;
-}
-
-/**
- * Create a scoped translation function bound to a locale.
- * Convenience wrapper so callers don't have to pass `locale` to every call.
- *
- * @example
- *   const t = useTranslations("en");
- *   t("nav.work") // => "Work"
- */
-export function useTranslations(locale: Locale): (key: string) => string {
-  return (key: string) => t(locale, key);
 }

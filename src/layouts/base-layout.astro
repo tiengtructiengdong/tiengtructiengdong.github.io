@@ -6,23 +6,13 @@
  * appear consistently across the entire app.
  */
 import "../styles/global.css";
-import { registerLocale, t, langAttr, localeFromUrl } from "@lib/i18n";
+import { useTranslations, langAttr, localeFromUrl } from "@lib/i18n";
 import type { Locale } from "@lib/i18n";
-import en from "../locales/en.json";
-import ja from "../locales/ja.json";
-import ko from "../locales/ko.json";
-import vi from "../locales/vi.json";
 import DotMatrixBackground from "@components/islands/shared/dot-matrix-background";
 import LanguageSelector from "@components/islands/shared/language-selector";
 import RoleLinks from "@components/islands/shared/role-links";
 import type { GradientPreset } from "@components/islands/shared/dot-matrix-background";
-import { MAIN, HEADER_BAR, BRAND } from "@lib/classes";
-
-// Register all locales at module scope (idempotent)
-registerLocale("en", en);
-registerLocale("ja", ja);
-registerLocale("ko", ko);
-registerLocale("vi", vi);
+import { MAIN, BRAND } from "@lib/classes";
 
 export interface Props {
   title?: string;
@@ -40,8 +30,9 @@ const {
 } = Astro.props;
 
 const lang = langAttr(locale);
-const pageTitle = titleOverride ?? t(locale, "site.title");
-const pageDescription = descriptionOverride ?? t(locale, "site.description");
+const t = useTranslations(locale);
+const pageTitle = titleOverride ?? t("site.title");
+const pageDescription = descriptionOverride ?? t("site.description");
 ---
 
 <!doctype html>
@@ -58,20 +49,21 @@ const pageDescription = descriptionOverride ?? t(locale, "site.description");
     {/* Dot matrix particle background (fixed, behind all content) */}
     <DotMatrixBackground client:only="react" gradient={gradient} />
 
-    {/* Main content layer (above the background) */}
-    <div class={MAIN}>
-      {/* Header bar */}
-      <header class={HEADER_BAR}>
+    {/* Sticky header bar (above main content) */}
+    <header class="sticky top-0 z-20 w-full border-b border-white/10 bg-[#0d0d18]/60 backdrop-blur-sm">
+      <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <a href="/" class={BRAND}>
-          {t(locale, "brand")}
+          {t("brand")}
         </a>
         <div class="flex items-center gap-2 sm:gap-4">
           <RoleLinks client:load variant="header" />
           <LanguageSelector client:load inline />
         </div>
-      </header>
+      </div>
+    </header>
 
-      {/* Page-specific content */}
+    {/* Main content layer (below header) */}
+    <div class={MAIN}>
       <slot />
     </div>
   </body>

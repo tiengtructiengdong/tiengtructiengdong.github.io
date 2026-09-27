@@ -9,7 +9,7 @@
  */
 
 import clsx from "clsx";
-import { FaSquarePhone, FaEnvelope } from "react-icons/fa6";
+import { FaSquarePhone, FaEnvelope, FaGithub } from "react-icons/fa6";
 import type { GradientPreset } from "@components/islands/shared/dot-matrix-background";
 import { contact } from "@lib/contact";
 
@@ -33,20 +33,27 @@ export default function ContactLinks({
   const buttonClass = clsx(
     "inline-flex items-center justify-center gap-2 rounded-lg",
     "border border-white/10 bg-white/5 px-4 py-2",
-    "font-mono text-sm text-[var(--color-fg)]",
+    "font-mono text-base text-[var(--color-fg)]",
     "transition-colors hover:bg-white/10",
   );
 
   return (
     <div
       className={clsx(
-        "flex w-full flex-col items-stretch gap-3 sm:flex-row sm:justify-center",
+        "flex w-full flex-wrap items-stretch gap-3 sm:flex-row sm:justify-center",
         className,
       )}
     >
       <a href={`tel:${contact.phone}`} className={buttonClass}>
-        <FaSquarePhone aria-hidden="true" className={clsx("h-4 w-4", iconClass)} />
+        <FaSquarePhone
+          aria-hidden="true"
+          className={clsx("h-4 w-4", iconClass)}
+        />
         <span>{contact.phoneDisplay}</span>
+      </a>
+      <a href={`https://github.com/${contact.github}`} className={buttonClass}>
+        <FaGithub aria-hidden="true" className={clsx("h-4 w-4", iconClass)} />
+        <span>{contact.github}</span>
       </a>
       <a href={`mailto:${contact.email}`} className={buttonClass}>
         <FaEnvelope aria-hidden="true" className={clsx("h-4 w-4", iconClass)} />

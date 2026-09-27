@@ -4,17 +4,8 @@
  * Static HTML header for desktop (Zero JS).
  * Uses i18n for nav labels and brand text.
  */
-import { registerLocale, useTranslations } from "@lib/i18n";
 import type { Locale } from "@lib/i18n";
-import en from "../../../locales/en.json";
-import ja from "../../../locales/ja.json";
-import ko from "../../../locales/ko.json";
-import vi from "../../../locales/vi.json";
-
-registerLocale("en", en);
-registerLocale("ja", ja);
-registerLocale("ko", ko);
-registerLocale("vi", vi);
+import { useTranslations } from "@lib/i18n";
 
 export interface Props {
   lang?: Locale;

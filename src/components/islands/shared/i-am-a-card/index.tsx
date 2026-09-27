@@ -5,18 +5,15 @@
  *
  * Cycles through locale keys under `i_am_a.*`, typing each word
  * character-by-character, holding, then clearing (backspace) before
- * moving to the next. Reads the active locale from the Jotai
- * languageAtom so it updates instantly when the user switches language.
+ * moving to the next. Reads the active locale from the i18next instance
+ * so it updates instantly when the user switches language.
  *
  * Hydrated client-side (client:load or client:visible).
  */
 
 import { useEffect, useRef, useState } from "react";
-import { useAtom } from "jotai";
 import clsx from "clsx";
-import { languageAtom } from "@stores/info";
-import { t } from "@lib/i18n";
-import type { Locale } from "@lib/i18n";
+import { useTranslation } from "@lib/i18n";
 import { CARD } from "@lib/classes";
 
 // ---- Typing effect configuration -------------------------------------------
@@ -52,7 +49,7 @@ export default function IAmACard({
   accentClassName = "text-cyan-400",
   textClassName = "text-sky-300",
 }: IAmACardProps): React.ReactElement {
-  const [locale] = useAtom(languageAtom);
+  const { t, i18n } = useTranslation();
   const [displayed, setDisplayed] = useState("");
   const [cursorVisible, setCursorVisible] = useState(true);
   const indexRef = useRef(0);
@@ -60,7 +57,7 @@ export default function IAmACard({
 
   useEffect(() => {
     // Build the list of role strings for the current locale
-    const roleStrings = roles.map((key) => t(locale as Locale, key));
+    const roleStrings = roles.map((key) => t(key));
 
     let cancelled = false;
 
@@ -119,9 +116,9 @@ export default function IAmACard({
       }
       clearInterval(cursorInterval);
     };
-  }, [locale, roles]);
+  }, [i18n.language, roles]);
 
-  const heading = t(locale as Locale, "i_am_a.heading");
+  const heading = t("i_am_a.heading");
 
   const cardClasses = clsx(CARD, className);
 
@@ -154,7 +151,7 @@ export default function IAmACard({
       </div>
 
       {/* Terminal body */}
-      <div className="font-mono text-sm leading-relaxed">
+      <div className="font-mono text-base leading-relaxed">
         <div className="mb-2 text-[var(--color-fg-muted)]">
           <span className={accentClassName}>$</span> {heading}
         </div>

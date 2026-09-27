@@ -8,28 +8,34 @@
  *
  * Hydrated client-side (client:load or client:visible).
  */
-import { useState, useEffect, useCallback } from "react";
-import { useAtom } from "jotai";
-import clsx from "clsx";
-import { languageAtom } from "@stores/info";
-import { t } from "@lib/i18n";
-import type { Locale } from "@lib/i18n";
-import { readViewport } from "@lib/viewport";
-import type { Skill } from "@lib/skills";
-import { skillCategories, formatExperiencedSince } from "@lib/skills";
-import { CARD, ACCENT_HEADING } from "@lib/classes";
-import {
-  MODAL_OVERLAY,
-  MODAL_WINDOW,
-  MODAL_TITLE_BAR,
-  TRAFFIC_LIGHT,
-  MODAL_BODY,
-} from "../classes";
 
-export default function SkillCard() {
-  const [locale] = useAtom(languageAtom);
+import { CARD } from "@lib/classes";
+import { useTranslation } from "@lib/i18n";
+import type { Skill, SkillCategory } from "@lib/skills";
+import { skillCategories } from "@lib/skills";
+import { readViewport } from "@lib/viewport";
+import clsx from "clsx";
+import { useCallback, useEffect, useState } from "react";
+import SkillCategorySectionList from "./skill-category-section-list";
+import SkillDetailModal from "./skill-detail-modal";
+
+export default function SkillCard({
+  className = "",
+  categories = skillCategories,
+  accentClassName,
+}: {
+  className?: string;
+  categories?: SkillCategory[];
+  accentClassName?: string;
+}): React.ReactElement {
+  const { t } = useTranslation();
   const [isDesktop, setIsDesktop] = useState(false);
   const [activeSkill, setActiveSkill] = useState<Skill | null>(null);
+
+  const titleClass = clsx(
+    "font-mono text-base font-medium mb-4",
+    accentClassName ?? "text-cyan-400",
+  );
 
   useEffect(() => {
     const update = () => setIsDesktop(readViewport().isDesktop);
@@ -65,148 +71,27 @@ export default function SkillCard() {
 
   return (
     <>
-      <div className={clsx(CARD, "overflow-visible h-full select-none")}>
-        <h2 className={clsx(ACCENT_HEADING, "mb-4")}>
-          {t(locale as Locale, "skills.title")}
-        </h2>
+      <div
+        className={clsx(CARD, "overflow-visible h-full select-none", className)}
+      >
+        <h2 className={titleClass}>{t("skills.title")}</h2>
 
         <div className="flex flex-row gap-6">
-          {skillCategories.map((group) => (
-            <section
-              key={group.category}
-              className={clsx(
-                "flex flex-col gap-3 flex-1",
-                CARD,
-                "overflow-visible",
-              )}
-            >
-              <h3
-                className={clsx(ACCENT_HEADING, "text-[var(--color-fg-muted)]")}
-              >
-                {group.category}
-              </h3>
-
-              <div className="flex flex-col gap-3">
-                {group.skills.map((skill) => (
-                  <div key={skill.name}>
-                    <div className="mb-1 flex items-baseline justify-between gap-2">
-                      <span className="font-mono text-xs text-[var(--color-fg)]">
-                        {skill.name}
-                      </span>
-                      <span className="font-mono text-[10px] text-[var(--color-fg-muted)]">
-                        {formatExperiencedSince(skill.experienced_since)}{" "}
-                        {t(locale as Locale, "skills.years")}
-                      </span>
-                    </div>
-
-                    {/* Efficiency bar — hover (desktop) / tap (mobile) */}
-                    <div
-                      className="group relative cursor-pointer"
-                      onClick={() => handleBarClick(skill)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          handleBarClick(skill);
-                        }
-                      }}
-                    >
-                      <div className="h-3 w-full overflow-visible bg-white/10">
-                        <div
-                          className="h-full transition-all"
-                          style={{
-                            width: `${Math.min(1, Math.max(0, skill.efficiency)) * 100}%`,
-                            backgroundColor: skill.color,
-                          }}
-                        />
-                      </div>
-
-                      {/* Desktop hover tooltip — upper-right corner */}
-                      {isDesktop && skill.extra_notes && (
-                        <div
-                          className={clsx(
-                            "pointer-events-none absolute right-0 bottom-full",
-                            "z-20 mb-2 hidden max-w-xs rounded-md border",
-                            "border-white/10 bg-[#0d0d18]/95 p-2",
-                            "font-mono text-[11px] leading-relaxed",
-                            "text-[var(--color-fg)] shadow-lg backdrop-blur-sm",
-                            "group-hover:block",
-                          )}
-                        >
-                          {skill.extra_notes}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          ))}
+          <SkillCategorySectionList
+            categories={categories}
+            isDesktop={isDesktop}
+            yearsLabel={t("skills.years")}
+            onBarClick={handleBarClick}
+          />
         </div>
       </div>
 
-      {/* Mobile popup (Mac-style) */}
-      {activeSkill && !isDesktop && (
-        <div
-          className={MODAL_OVERLAY}
-          onClick={closePopup}
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className={MODAL_WINDOW} onClick={(e) => e.stopPropagation()}>
-            <div className={MODAL_TITLE_BAR}>
-              <span
-                className={clsx(TRAFFIC_LIGHT, "bg-red-500 hover:bg-red-400")}
-                onClick={closePopup}
-                aria-label="Close"
-              />
-              <span className={clsx(TRAFFIC_LIGHT, "bg-yellow-500")} />
-              <span className={clsx(TRAFFIC_LIGHT, "bg-green-500")} />
-              <span
-                className={clsx(
-                  "ml-2 font-mono text-xs",
-                  "text-[var(--color-fg-muted)]",
-                )}
-              >
-                {activeSkill.name}
-              </span>
-            </div>
-            <div className={MODAL_BODY}>
-              <div className="mb-3 flex items-baseline justify-between gap-2">
-                <span className="font-mono text-sm text-[var(--color-fg)]">
-                  {activeSkill.name}
-                </span>
-                <span className="font-mono text-xs text-[var(--color-fg-muted)]">
-                  {formatExperiencedSince(activeSkill.experienced_since)}{" "}
-                  {t(locale as Locale, "skills.years")}
-                </span>
-              </div>
-              <div
-                className={clsx(
-                  "mb-4 h-2 w-full overflow-hidden",
-                  "rounded-full bg-white/10",
-                )}
-              >
-                <div
-                  className="h-full rounded-full"
-                  style={{
-                    width: `${Math.min(1, Math.max(0, activeSkill.efficiency)) * 100}%`,
-                    backgroundColor: activeSkill.color,
-                  }}
-                />
-              </div>
-              <p
-                className={clsx(
-                  "font-mono text-xs leading-relaxed",
-                  "text-[var(--color-fg-muted)]",
-                )}
-              >
-                {activeSkill.extra_notes}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
+      <SkillDetailModal
+        skill={activeSkill}
+        isDesktop={isDesktop}
+        yearsLabel={t("skills.years")}
+        onClose={closePopup}
+      />
     </>
   );
 }

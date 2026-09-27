@@ -28,6 +28,6 @@ export const TIMELINE_CONTENT = clsx(
 
 /** Company name in timeline. */
 export const COMPANY_NAME = clsx(
-  "font-mono text-sm font-medium text-[var(--color-fg)]",
+  "font-mono text-base font-medium text-[var(--color-fg)]",
   "transition-colors hover:text-cyan-400",
 );

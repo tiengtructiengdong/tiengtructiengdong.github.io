@@ -5,11 +5,11 @@
  *
  * Hydrated client-side only (client:only="react").
  */
-import { useEffect, useRef } from "react";
-import clsx from "clsx";
+import { attachTouch, createTouchState } from "@lib/touch";
 import wave2dFrag from "@shaders/mobile/wave2d.frag?raw";
 import wave2dVert from "@shaders/mobile/wave2d.vs?raw";
-import { createTouchState, attachTouch } from "@lib/touch";
+import clsx from "clsx";
+import { useEffect, useRef } from "react";
 
 function compile(
   gl: WebGLRenderingContext,
@@ -108,7 +108,5 @@ export default function TouchCanvas2D({
     };
   }, []);
 
-  return (
-    <canvas ref={canvasRef} className={clsx("touch-canvas", className)} />
-  );
+  return <canvas ref={canvasRef} className={clsx("touch-canvas", className)} />;
 }

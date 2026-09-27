@@ -23,14 +23,13 @@ import {
   useCallback,
   useMemo,
 } from "react";
-import { useAtom } from "jotai";
 import clsx from "clsx";
 import { generate } from "random-words";
-import { languageAtom } from "@stores/info";
-import { t } from "@lib/i18n";
-import type { Locale } from "@lib/i18n";
+import { useTranslation } from "@lib/i18n";
 import { CARD, ACCENT_HEADING } from "@lib/classes";
 import { MUTED_MONO } from "./classes";
+import TypedCharacterList from "./typed-character-list";
+import TypingResultOverlay from "./typing-result-overlay";
 
 /** Test duration, in seconds. */
 const TEST_DURATION = 60;
@@ -57,8 +56,7 @@ function countCorrect(typed: string, target: string): number {
 }
 
 export default function TypingTestCard() {
-  const [locale] = useAtom(languageAtom);
-  const loc = locale as Locale;
+  const { t } = useTranslation();
 
   const [status, setStatus] = useState<Status>("idle");
   const [words, setWords] = useState<string[]>(() => makeWords());
@@ -265,29 +263,31 @@ export default function TypingTestCard() {
     [status, target],
   );
 
-  const liveAccuracy =
-    status === "finished"
-      ? accuracy
-      : typed.length > 0
-        ? Math.round((correctChars / typed.length) * 100)
-        : 100;
+  let liveAccuracy: number;
+  if (status === "finished") {
+    liveAccuracy = accuracy;
+  } else if (typed.length > 0) {
+    liveAccuracy = Math.round((correctChars / typed.length) * 100);
+  } else {
+    liveAccuracy = 100;
+  }
   const finishedWpm = status === "finished" ? wpm : 0;
 
   return (
     <div className={clsx(CARD, "overflow-visible h-full select-none")}>
       <div className="mb-4 flex items-baseline justify-between gap-4">
-        <h2 className={clsx(ACCENT_HEADING)}>{t(loc, "typing_test.title")}</h2>
+        <h2 className={clsx(ACCENT_HEADING)}>{t("typing_test.title")}</h2>
         <div className="flex items-center gap-4 font-mono text-xs">
           <Stat
-            label={t(loc, "typing_test.time")}
+            label={t("typing_test.time")}
             value={`${Math.ceil(timeLeft)}s`}
           />
-          <Stat label={t(loc, "typing_test.wpm")} value={`${wpm}`} />
+          <Stat label={t("typing_test.wpm")} value={`${wpm}`} />
           <Stat
-            label={t(loc, "typing_test.accuracy")}
+            label={t("typing_test.accuracy")}
             value={`${liveAccuracy}%`}
           />
-          <Stat label={t(loc, "typing_test.words")} value={`${wordCount}`} />
+          <Stat label={t("typing_test.words")} value={`${wordCount}`} />
         </div>
       </div>
 
@@ -312,31 +312,11 @@ export default function TypingTestCard() {
           )}
           style={{ transform: `translateY(${translateY}px)` }}
         >
-          {target.split("").map((ch, i) => {
-            const typedCh = typed.at(i);
-            let cls = "text-white/25"; // untyped
-            if (i < typed.length) {
-              cls =
-                typedCh === ch
-                  ? "text-emerald-400"
-                  : ch === " "
-                    ? "text-red-400 bg-red-500/20 rounded"
-                    : "text-red-400";
-            }
-            const isCurrent = i === typed.length && status !== "finished";
-            return (
-              <span
-                key={i}
-                className={clsx(
-                  cls,
-                  isCurrent &&
-                    "rounded bg-cyan-400/20 text-white animate-pulse",
-                )}
-              >
-                {ch === " " ? "\u00A0" : ch}
-              </span>
-            );
-          })}
+          <TypedCharacterList
+            target={target}
+            typed={typed}
+            isFinished={status === "finished"}
+          />
         </div>
 
         {/* Hidden input that owns keyboard focus & captures keystrokes */}
@@ -356,54 +336,26 @@ export default function TypingTestCard() {
           autoCorrect="off"
           autoCapitalize="off"
           spellCheck={false}
-          aria-label={t(loc, "typing_test.title")}
+          aria-label={t("typing_test.title")}
         />
 
         {/* Finished result overlay */}
-        {status === "finished" && (
-          <div
-            className={clsx(
-              "absolute inset-0 flex items-center justify-center",
-              "gap-8 bg-black/55 backdrop-blur-[1px]",
-            )}
-          >
-            <p className={clsx(MUTED_MONO, "text-cyan-400")}>
-              {t(loc, "typing_test.finished")}
-            </p>
-            <div className="flex items-baseline gap-2">
-              <span
-                className={clsx(
-                  "font-mono text-4xl font-semibold",
-                  "text-[var(--color-fg)]",
-                )}
-              >
-                {finishedWpm}
-              </span>
-              <span className="font-mono text-xs text-[var(--color-fg-muted)]">
-                {t(loc, "typing_test.wpm")}
-              </span>
-            </div>
-            <div
-              className={clsx(
-                "flex gap-4 font-mono text-xs",
-                "text-[var(--color-fg)]",
-              )}
-            >
-              <span>
-                {t(loc, "typing_test.accuracy")}: {liveAccuracy}%
-              </span>
-              <span>
-                {t(loc, "typing_test.words")}: {wordCount}
-              </span>
-            </div>
-          </div>
-        )}
+        <TypingResultOverlay
+          status={status}
+          finishedLabel={t("typing_test.finished")}
+          wpmLabel={t("typing_test.wpm")}
+          accuracyLabel={t("typing_test.accuracy")}
+          wordsLabel={t("typing_test.words")}
+          finishedWpm={finishedWpm}
+          liveAccuracy={liveAccuracy}
+          wordCount={wordCount}
+        />
       </div>
 
       {/* Footer: hint */}
       <div className="mt-4 flex items-center justify-between gap-4">
         <p className={clsx(MUTED_MONO, "truncate")}>
-          {t(loc, "typing_test.hint")}
+          {t("typing_test.hint")}
         </p>
       </div>
     </div>
@@ -422,7 +374,7 @@ function Stat({ label, value }: { label: string; value: string }) {
       >
         {label}
       </span>
-      <span className="text-sm text-[var(--color-fg)]">{value}</span>
+      <span className="text-base text-[var(--color-fg)]">{value}</span>
     </div>
   );
 }

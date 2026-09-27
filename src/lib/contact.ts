@@ -12,10 +12,12 @@ export interface ContactInfo {
   phoneDisplay: string;
   /** Email address used for the `mailto:` link. */
   email: string;
+  github: string;
 }
 
 export const contact: ContactInfo = {
   phone: "+84889838077",
   phoneDisplay: "+84 889 838 077",
   email: "tiengtructiengdong@gmail.com",
+  github: "tiengtructiengdong",
 };
