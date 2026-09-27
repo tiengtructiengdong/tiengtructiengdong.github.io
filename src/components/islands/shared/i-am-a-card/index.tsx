@@ -27,7 +27,7 @@ const HOLD_AFTER_TYPE = 1400; // ms to hold after fully typing
 const HOLD_AFTER_ERASE = 250; // ms to hold after fully erased
 
 // Locale keys cycled by the terminal
-const ROLE_KEYS = [
+const DEFAULT_ROLE_KEYS = [
   "i_am_a.developer",
   "i_am_a.creative_technologist",
   "i_am_a.designer",
@@ -38,10 +38,19 @@ const ROLE_KEYS = [
 
 export interface IAmACardProps {
   className?: string;
+  /** Locale keys to cycle through in the terminal. */
+  roles?: readonly string[];
+  /** Accent color used for the prompt + cursor (a Tailwind class). */
+  accentClassName?: string;
+  /** Accent color used for the typed text (a Tailwind class). */
+  textClassName?: string;
 }
 
 export default function IAmACard({
   className = "",
+  roles = DEFAULT_ROLE_KEYS,
+  accentClassName = "text-cyan-400",
+  textClassName = "text-sky-300",
 }: IAmACardProps): React.ReactElement {
   const [locale] = useAtom(languageAtom);
   const [displayed, setDisplayed] = useState("");
@@ -51,7 +60,7 @@ export default function IAmACard({
 
   useEffect(() => {
     // Build the list of role strings for the current locale
-    const roles = ROLE_KEYS.map((key) => t(locale as Locale, key));
+    const roleStrings = roles.map((key) => t(locale as Locale, key));
 
     let cancelled = false;
 
@@ -59,7 +68,7 @@ export default function IAmACard({
       if (cancelled) {
         return;
       }
-      const role = roles[indexRef.current % roles.length];
+      const role = roleStrings[indexRef.current % roleStrings.length];
       let charIndex = 0;
 
       function typeChar(): void {
@@ -110,14 +119,19 @@ export default function IAmACard({
       }
       clearInterval(cursorInterval);
     };
-  }, [locale]);
+  }, [locale, roles]);
 
   const heading = t(locale as Locale, "i_am_a.heading");
 
   const cardClasses = clsx(CARD, className);
 
+  // Derive a background color class for the cursor from the accent text class
+  // (e.g. "text-cyan-400" → "bg-cyan-400").
+  const cursorBgClassName = accentClassName.replace("text-", "bg-");
+
   const cursorClasses = clsx(
-    "inline-block w-[8px] self-stretch bg-cyan-400",
+    "inline-block w-[8px] self-stretch",
+    cursorBgClassName,
     "transition-opacity duration-100",
     cursorVisible ? "opacity-100" : "opacity-0",
   );
@@ -142,11 +156,11 @@ export default function IAmACard({
       {/* Terminal body */}
       <div className="font-mono text-sm leading-relaxed">
         <div className="mb-2 text-[var(--color-fg-muted)]">
-          <span className="text-cyan-400">$</span> {heading}
+          <span className={accentClassName}>$</span> {heading}
         </div>
         <div className="flex items-baseline gap-1">
-          <span className="text-cyan-400">{">"}</span>
-          <span className="text-sky-300">{displayed}</span>
+          <span className={accentClassName}>{">"}</span>
+          <span className={textClassName}>{displayed}</span>
           <span className={cursorClasses} aria-hidden="true" />
         </div>
       </div>

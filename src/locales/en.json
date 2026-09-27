@@ -36,7 +36,16 @@
     "developer": "developer",
     "creative_technologist": "creative technologist",
     "designer": "designer",
-    "artist": "artist"
+    "artist": "artist",
+    "video_editor": "video editor",
+    "music_artist": "music artist"
+  },
+  "landing": {
+    "developer": "Developer",
+    "video_editor": "Video Editor",
+    "music_artist": "Music Artist",
+    "phone": "Phone",
+    "email": "Email"
   },
   "meta": {
     "yearRange": "{year}"

@@ -61,11 +61,11 @@ export default function WorkHistoryCard() {
         window.history.pushState(
           { company: entry.slug },
           "",
-          `/company/${entry.slug}`,
+          `/dev/company/${entry.slug}`,
         );
         setSelected(entry);
       } else {
-        window.location.href = `/company/${entry.slug}`;
+        window.location.href = `/dev/company/${entry.slug}`;
       }
     },
     [isDesktop],

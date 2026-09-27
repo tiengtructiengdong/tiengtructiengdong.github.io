@@ -9,9 +9,9 @@ import { useEffect, useState, useCallback } from "react";
 import clsx from "clsx";
 
 const NAV_ITEMS = [
-  { label: "Work", href: "/#work" },
-  { label: "About", href: "/#about" },
-  { label: "Contact", href: "/#contact" },
+  { label: "Work", href: "/dev#work" },
+  { label: "About", href: "/dev#about" },
+  { label: "Contact", href: "/dev#contact" },
 ] as const;
 
 export interface MobileNavigationProps {

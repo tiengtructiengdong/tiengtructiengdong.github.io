@@ -14,6 +14,8 @@ import ko from "../locales/ko.json";
 import vi from "../locales/vi.json";
 import DotMatrixBackground from "@components/islands/shared/dot-matrix-background";
 import LanguageSelector from "@components/islands/shared/language-selector";
+import RoleLinks from "@components/islands/shared/role-links";
+import type { GradientPreset } from "@components/islands/shared/dot-matrix-background";
 import { MAIN, HEADER_BAR, BRAND } from "@lib/classes";
 
 // Register all locales at module scope (idempotent)
@@ -26,12 +28,15 @@ export interface Props {
   title?: string;
   description?: string;
   lang?: Locale;
+  /** Dot-matrix background gradient preset. Defaults to `cyan-blue`. */
+  gradient?: GradientPreset;
 }
 
 const {
   title: titleOverride,
   description: descriptionOverride,
   lang: locale = "en",
+  gradient = "cyan-blue",
 } = Astro.props;
 
 const lang = langAttr(locale);
@@ -51,7 +56,7 @@ const pageDescription = descriptionOverride ?? t(locale, "site.description");
   </head>
   <body>
     {/* Dot matrix particle background (fixed, behind all content) */}
-    <DotMatrixBackground client:only="react" />
+    <DotMatrixBackground client:only="react" gradient={gradient} />
 
     {/* Main content layer (above the background) */}
     <div class={MAIN}>
@@ -60,7 +65,10 @@ const pageDescription = descriptionOverride ?? t(locale, "site.description");
         <a href="/" class={BRAND}>
           {t(locale, "brand")}
         </a>
-        <LanguageSelector client:load inline />
+        <div class="flex items-center gap-2 sm:gap-4">
+          <RoleLinks client:load variant="header" />
+          <LanguageSelector client:load inline />
+        </div>
       </header>
 
       {/* Page-specific content */}

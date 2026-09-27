@@ -36,7 +36,16 @@
     "developer": "開発者",
     "creative_technologist": "クリエイティブテクノロジスト",
     "designer": "デザイナー",
-    "artist": "アーティスト"
+    "artist": "アーティスト",
+    "video_editor": "動画編集者",
+    "music_artist": "ミュージックアーティスト"
+  },
+  "landing": {
+    "developer": "Developer",
+    "video_editor": "Video Editor",
+    "music_artist": "Music Artist",
+    "phone": "電話",
+    "email": "メール"
   },
   "meta": {
     "yearRange": "{year}"

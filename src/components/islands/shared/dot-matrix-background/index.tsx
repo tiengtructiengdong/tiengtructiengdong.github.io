@@ -25,13 +25,33 @@ const GROW_RADIUS_MOBILE = 25; // 50px diameter → 25px radius
 const EASE_DURATION = 0.2; // 0.2s ease-in-out
 const MAX_DOT_RADIUS = 50; // cap so a single dot never exceeds ~100px diameter
 
-// Cyan-blue gradient stops (top-left → bottom-right)
-const GRADIENT_STOPS: Array<{ stop: number; color: [number, number, number] }> =
-  [
+// ---- Gradient presets -------------------------------------------------------
+
+export type GradientPreset = "cyan-blue" | "yellow-orange" | "red-pink";
+
+const GRADIENT_PRESETS: Record<
+  GradientPreset,
+  Array<{ stop: number; color: [number, number, number] }>
+> = {
+  // Cyan → sky blue → blue
+  "cyan-blue": [
     { stop: 0, color: [0, 255, 213] }, // cyan
     { stop: 0.5, color: [56, 189, 248] }, // sky blue
     { stop: 1, color: [59, 130, 246] }, // blue
-  ];
+  ],
+  // Yellow → orange → amber-red
+  "yellow-orange": [
+    { stop: 0, color: [253, 224, 71] }, // yellow
+    { stop: 0.5, color: [249, 115, 22] }, // orange
+    { stop: 1, color: [239, 68, 68] }, // red
+  ],
+  // Red → rose → pink
+  "red-pink": [
+    { stop: 0, color: [239, 68, 68] }, // red
+    { stop: 0.5, color: [244, 63, 94] }, // rose
+    { stop: 1, color: [236, 72, 153] }, // pink
+  ],
+};
 
 // ---- Types ------------------------------------------------------------------
 
@@ -75,12 +95,15 @@ function approach(
   return lerp(current, target, alpha);
 }
 
-/** Sample the cyan-blue gradient at position `t` (0–1). */
-function sampleGradient(t: number): [number, number, number] {
+/** Sample a gradient (defined by its stops) at position `t` (0–1). */
+function sampleGradient(
+  t: number,
+  stops: Array<{ stop: number; color: [number, number, number] }>,
+): [number, number, number] {
   const clamped = Math.max(0, Math.min(1, t));
-  for (let i = 0; i < GRADIENT_STOPS.length - 1; i++) {
-    const a = GRADIENT_STOPS[i];
-    const b = GRADIENT_STOPS[i + 1];
+  for (let i = 0; i < stops.length - 1; i++) {
+    const a = stops[i];
+    const b = stops[i + 1];
     if (clamped >= a.stop && clamped <= b.stop) {
       const localT = (clamped - a.stop) / (b.stop - a.stop);
       return [
@@ -90,7 +113,7 @@ function sampleGradient(t: number): [number, number, number] {
       ];
     }
   }
-  const last = GRADIENT_STOPS[GRADIENT_STOPS.length - 1].color;
+  const last = stops[stops.length - 1].color;
   return [last[0], last[1], last[2]];
 }
 
@@ -106,12 +129,16 @@ function isTouchDevice(): boolean {
 
 export interface DotMatrixBackgroundProps {
   className?: string;
+  /** Gradient color preset. Defaults to `cyan-blue`. */
+  gradient?: GradientPreset;
 }
 
 export default function DotMatrixBackground({
   className = "",
+  gradient = "cyan-blue",
 }: DotMatrixBackgroundProps): React.ReactElement {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const gradientStops = GRADIENT_PRESETS[gradient] ?? GRADIENT_PRESETS["cyan-blue"];
 
   useEffect(() => {
     const canvasEl = canvasRef.current;
@@ -263,7 +290,7 @@ export default function DotMatrixBackground({
         if (dot.r <= DOT_RADIUS + 0.1 && dot.tr <= DOT_RADIUS + 0.1) {
           // Draw base dot
           const t = (dot.x + dot.y) / diag;
-          const [cr, cg, cb] = sampleGradient(t);
+          const [cr, cg, cb] = sampleGradient(t, gradientStops);
           ctx.fillStyle = `rgba(${cr}, ${cg}, ${cb}, 0.35)`;
           ctx.beginPath();
           ctx.arc(dot.x, dot.y, DOT_RADIUS, 0, Math.PI * 2);
@@ -271,7 +298,7 @@ export default function DotMatrixBackground({
         } else {
           // Draw grown dot with glow
           const t = (dot.x + dot.y) / diag;
-          const [cr, cg, cb] = sampleGradient(t);
+          const [cr, cg, cb] = sampleGradient(t, gradientStops);
           const intensity = Math.min(
             1,
             (dot.r - DOT_RADIUS) / (MAX_DOT_RADIUS - DOT_RADIUS),
@@ -329,7 +356,7 @@ export default function DotMatrixBackground({
       window.removeEventListener("pointerleave", onPointerLeave);
       pointers.clear();
     };
-  }, []);
+  }, [gradientStops]);
 
   return (
     <canvas
