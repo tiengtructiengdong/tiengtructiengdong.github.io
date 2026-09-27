@@ -12,7 +12,7 @@ import DotMatrixBackground from "@components/islands/shared/dot-matrix-backgroun
 import LanguageSelector from "@components/islands/shared/language-selector";
 import RoleLinks from "@components/islands/shared/role-links";
 import type { GradientPreset } from "@components/islands/shared/dot-matrix-background";
-import { MAIN, HEADER_BAR, BRAND } from "@lib/classes";
+import { MAIN, BRAND } from "@lib/classes";
 
 export interface Props {
   title?: string;
@@ -49,10 +49,9 @@ const pageDescription = descriptionOverride ?? t("site.description");
     {/* Dot matrix particle background (fixed, behind all content) */}
     <DotMatrixBackground client:only="react" gradient={gradient} />
 
-    {/* Main content layer (above the background) */}
-    <div class={MAIN}>
-      {/* Header bar */}
-      <header class={HEADER_BAR}>
+    {/* Sticky header bar (above main content) */}
+    <header class="sticky top-0 z-20 w-full border-b border-white/10 bg-[#0d0d18]/60 backdrop-blur-sm">
+      <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <a href="/" class={BRAND}>
           {t("brand")}
         </a>
@@ -60,9 +59,11 @@ const pageDescription = descriptionOverride ?? t("site.description");
           <RoleLinks client:load variant="header" />
           <LanguageSelector client:load inline />
         </div>
-      </header>
+      </div>
+    </header>
 
-      {/* Page-specific content */}
+    {/* Main content layer (below header) */}
+    <div class={MAIN}>
       <slot />
     </div>
   </body>

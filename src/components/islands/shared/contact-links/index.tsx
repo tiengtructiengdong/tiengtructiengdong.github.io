@@ -9,7 +9,7 @@
  */
 
 import clsx from "clsx";
-import { FaSquarePhone, FaEnvelope } from "react-icons/fa6";
+import { FaSquarePhone, FaEnvelope, FaGithub } from "react-icons/fa6";
 import type { GradientPreset } from "@components/islands/shared/dot-matrix-background";
 import { contact } from "@lib/contact";
 
@@ -40,7 +40,7 @@ export default function ContactLinks({
   return (
     <div
       className={clsx(
-        "flex w-full flex-col items-stretch gap-3 sm:flex-row sm:justify-center",
+        "flex w-full flex-wrap items-stretch gap-3 sm:flex-row sm:justify-center",
         className,
       )}
     >
@@ -50,6 +50,10 @@ export default function ContactLinks({
           className={clsx("h-4 w-4", iconClass)}
         />
         <span>{contact.phoneDisplay}</span>
+      </a>
+      <a href={`https://github.com/${contact.github}`} className={buttonClass}>
+        <FaGithub aria-hidden="true" className={clsx("h-4 w-4", iconClass)} />
+        <span>{contact.github}</span>
       </a>
       <a href={`mailto:${contact.email}`} className={buttonClass}>
         <FaEnvelope aria-hidden="true" className={clsx("h-4 w-4", iconClass)} />
