@@ -36,7 +36,16 @@
     "developer": "lập trình viên",
     "creative_technologist": "nhà công nghệ sáng tạo",
     "designer": "nhà thiết kế",
-    "artist": "nghệ sĩ"
+    "artist": "nghệ sĩ",
+    "video_editor": "người dựng phim",
+    "music_artist": "nghệ sĩ âm nhạc"
+  },
+  "landing": {
+    "developer": "Developer",
+    "video_editor": "Video Editor",
+    "music_artist": "Music Artist",
+    "phone": "Điện thoại",
+    "email": "Email"
   },
   "meta": {
     "yearRange": "{year}"

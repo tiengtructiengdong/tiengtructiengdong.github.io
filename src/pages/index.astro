@@ -2,52 +2,25 @@
 /**
  * index.astro
  *
- * New layout:
- *  - DotMatrixBackground (fixed, full-screen, behind all content) — in BaseLayout
- *  - Header with brand + language selector — in BaseLayout
- *  - First row: 2 cards (About + "I am a" terminal)
- *    → row on desktop, column on mobile
- *  - Second row: WorkHistoryCard (1/3) + SkillCard (2/3)
+ * Landing page.
+ *
+ * Centred column (max-width 500px) with, top to bottom:
+ *  - Profile picture
+ *  - "I am a" terminal card (cycles the developer/creative technologist/
+ *    designer/artist roles)
+ *  - Mobile phone + email contact
+ *  - Role buttons: Developer, Video Editor, Music Artist
+ *
+ * Background (cyan-blue dot matrix) + header are provided by BaseLayout.
  */
-import clsx from "clsx";
 import BaseLayout from "@layouts/base-layout.astro";
-import IAmACard from "@components/islands/shared/i-am-a-card";
-import WorkHistoryCard from "@components/islands/shared/work-history-card";
-import SkillCard from "@components/islands/shared/skill-card";
-import TypingTestCard from "@components/islands/desktop/typing-test-card";
-import AboutCard from "@components/dom/shared/about-card.astro";
+import ProfileLanding from "@components/dom/shared/profile-landing.astro";
 import { localeFromUrl } from "@lib/i18n";
 import type { Locale } from "@lib/i18n";
-import {
-  SECOND_ROW,
-  SECOND_ROW_LEFT,
-  SECOND_ROW_RIGHT,
-  THIRD_ROW,
-  DESKTOP_ONLY,
-} from "@lib/classes";
 
 const locale: Locale = localeFromUrl(Astro.url);
 ---
 
 <BaseLayout lang={locale}>
-  {/* First row: 2 cards → row on desktop, column on mobile */}
-  <div class="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
-    <AboutCard lang={locale} />
-    <IAmACard client:load />
-  </div>
-
-  {/* Second row: WorkHistoryCard (1/3) + SkillCard (2/3) */}
-  <div class={clsx(SECOND_ROW, "mt-4 sm:mt-6")}>
-    <div class={SECOND_ROW_LEFT}>
-      <WorkHistoryCard client:load />
-    </div>
-    <div class={SECOND_ROW_RIGHT}>
-      <SkillCard client:load />
-    </div>
-  </div>
-
-  {/* Third row: Typing Test card (desktop only) */}
-  <div class={clsx(THIRD_ROW, DESKTOP_ONLY)}>
-    <TypingTestCard client:load />
-  </div>
+  <ProfileLanding gradient="cyan-blue" />
 </BaseLayout>

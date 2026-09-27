@@ -1,0 +1,71 @@
+---
+/**
+ * profile-landing.astro
+ *
+ * Reusable landing block rendered on `/`, `/video-editor`, and `/music`.
+ *
+ * Layout (vertically centred, max-width 500px):
+ *  1. Profile picture (top)
+ *  2. "I am a" terminal card
+ *  3. Mobile phone + email contact
+ *  4. Role buttons: Developer, Video Editor, Music Artist
+ *
+ * The dot-matrix gradient preset is threaded through to the profile
+ * avatar + "I am a" card accent so each role page has a matching
+ * colour theme. Background and header are provided by BaseLayout.
+ */
+import clsx from "clsx";
+import ProfileAvatar from "@components/islands/shared/profile-avatar";
+import IAmACard from "@components/islands/shared/i-am-a-card";
+import RoleLinks from "@components/islands/shared/role-links";
+import ContactLinks from "@components/islands/shared/contact-links";
+import type { GradientPreset } from "@components/islands/shared/dot-matrix-background";
+
+export interface Props {
+  /** Gradient preset shared with the page's dot-matrix background. */
+  gradient?: GradientPreset;
+  /** Accent Tailwind class for the "I am a" prompt + cursor. */
+  accentClassName?: string;
+  /** Typed-text Tailwind class for the "I am a" terminal. */
+  textClassName?: string;
+  /** Locale keys cycled by the "I am a" terminal. */
+  roles?: readonly string[];
+}
+
+const {
+  gradient = "cyan-blue",
+  accentClassName = "text-cyan-400",
+  textClassName = "text-sky-300",
+  roles = [
+    "i_am_a.developer",
+    "i_am_a.creative_technologist",
+    "i_am_a.designer",
+    "i_am_a.artist",
+  ],
+} = Astro.props;
+---
+
+<section
+  class={clsx(
+    "mx-auto flex min-h-[calc(100vh-8rem)] w-full max-w-[500px]",
+    "flex-col items-center justify-center gap-6 py-8",
+  )}
+>
+  {/* 1. Profile picture (top) */}
+  <ProfileAvatar client:load gradient={gradient} />
+
+  {/* 2. "I am a" card */}
+  <IAmACard
+    client:load
+    className="w-full"
+    roles={roles}
+    accentClassName={accentClassName}
+    textClassName={textClassName}
+  />
+
+  {/* 3. Mobile phone + email contact */}
+  <ContactLinks client:load gradient={gradient} />
+
+  {/* 4. Role buttons */}
+  <RoleLinks client:load variant="card" />
+</section>

@@ -1,0 +1,31 @@
+---
+/**
+ * music.astro
+ *
+ * Music Artist landing page. Same reusable layout as `/`, but with a
+ * red-pink dot-matrix gradient and music-artist roles cycled in the
+ * "I am a" terminal.
+ *
+ * Background + header are provided by BaseLayout.
+ */
+import BaseLayout from "@layouts/base-layout.astro";
+import ProfileLanding from "@components/dom/shared/profile-landing.astro";
+import { localeFromUrl } from "@lib/i18n";
+import type { Locale } from "@lib/i18n";
+
+const locale: Locale = localeFromUrl(Astro.url);
+---
+
+<BaseLayout lang={locale} gradient="red-pink">
+  <ProfileLanding
+    gradient="red-pink"
+    accentClassName="text-rose-400"
+    textClassName="text-pink-300"
+    roles={[
+      "i_am_a.music_artist",
+      "i_am_a.creative_technologist",
+      "i_am_a.designer",
+      "i_am_a.artist",
+    ]}
+  />
+</BaseLayout>
