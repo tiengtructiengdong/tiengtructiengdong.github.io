@@ -27,16 +27,25 @@
     "pageTitle": "another — htien"
   },
   "about": {
-    "title": "A full-stack developer",
-    "heading": "A full-stack developer",
-    "bio": "I'm a full-stack developer specialized in web app and mobile app development."
+    "title": "About",
+    "heading": "About",
+    "bio": "I'm a full-stack developer and creative technologist who loves building interactive experiences with WebGL, 3D graphics, and modern web technologies."
   },
   "i_am_a": {
     "heading": "I am a",
     "developer": "developer",
     "creative_technologist": "creative technologist",
     "designer": "designer",
-    "artist": "artist"
+    "artist": "artist",
+    "video_editor": "video editor",
+    "music_artist": "music artist"
+  },
+  "landing": {
+    "developer": "Developer",
+    "video_editor": "Video Editor",
+    "music_artist": "Music Artist",
+    "phone": "Phone",
+    "email": "Email"
   },
   "meta": {
     "yearRange": "{year}"
