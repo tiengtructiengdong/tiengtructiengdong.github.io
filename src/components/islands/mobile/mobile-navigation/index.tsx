@@ -7,6 +7,7 @@
  */
 import clsx from "clsx";
 import { useCallback, useEffect, useState } from "react";
+import MobileNavItemList from "./mobile-nav-item-list";
 
 const NAV_ITEMS = [
   { label: "Work", href: "/dev#work" },
@@ -59,17 +60,11 @@ export default function MobileNavigation({
       data-open={open}
       aria-hidden={!open}
     >
-      {NAV_ITEMS.map((item) => (
-        <a
-          key={item.href}
-          href={item.href}
-          className="mobile-nav-overlay__link"
-          onClick={close}
-          tabIndex={open ? 0 : -1}
-        >
-          {item.label}
-        </a>
-      ))}
+      <MobileNavItemList
+        items={NAV_ITEMS}
+        open={open}
+        onClose={close}
+      />
     </nav>
   );
 }

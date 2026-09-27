@@ -25,7 +25,10 @@ import {
   useRef,
   useState,
 } from "react";
-import { FaChevronLeft, FaChevronRight, FaYoutube } from "react-icons/fa6";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
+import CarouselTrack from "./carousel-track";
+import type { CarouselTrackSlide } from "./carousel-track";
+import SlideIndicatorList from "./slide-indicator-list";
 
 const VIDEOS = [
   { id: "LdL6Z86winM", title: "YouTube video player" },
@@ -58,7 +61,6 @@ const useIsomorphicLayoutEffect =
 // breakpoint we fall back to a single full-width slide (mobile).
 const TILE_WIDTH = 600;
 const TILE_GAP = 50;
-const DIM_OPACITY = 0.5;
 const DESKTOP_BREAKPOINT = 640;
 
 export interface VideoCarouselProps {
@@ -77,7 +79,7 @@ export default function VideoCarousel({
   // Cloned first & last slides make the loop seamless. Each slide is
   // tagged `isClone` so we can render a lightweight thumbnail for clones
   // and derive a stable, index-free React key.
-  const slides = [
+  const slides: CarouselTrackSlide[] = [
     { ...VIDEOS[VIDEOS.length - 1], isClone: true },
     ...VIDEOS.map((video) => ({ ...video, isClone: false })),
     { ...VIDEOS[0], isClone: true },
@@ -234,47 +236,12 @@ export default function VideoCarousel({
           }}
           onTransitionEnd={handleTransitionEnd}
         >
-          {slides.map((video, index) => {
-            const isClone = video.isClone;
-            return (
-              <div
-                key={`${video.isClone ? "clone" : "real"}-${video.id}`}
-                className="shrink-0 transition-opacity duration-300"
-                style={{
-                  width: slideWidth ? `${slideWidth}px` : "100%",
-                  opacity: index === pos ? 1 : DIM_OPACITY,
-                }}
-              >
-                <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-black">
-                  {isClone ? (
-                    <div
-                      className="absolute inset-0 bg-cover bg-center"
-                      style={{
-                        backgroundImage: `url(https://i.ytimg.com/vi/${video.id}/hqdefault.jpg)`,
-                      }}
-                    >
-                      <div className="flex h-full w-full items-center justify-center bg-black/40">
-                        <FaYoutube
-                          aria-hidden="true"
-                          className={clsx("h-12 w-12", accent)}
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <iframe
-                      className="absolute inset-0 h-full w-full"
-                      src={`https://www.youtube-nocookie.com/embed/${video.id}`}
-                      title={video.title}
-                      loading="lazy"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      referrerPolicy="strict-origin-when-cross-origin"
-                      allowFullScreen
-                    />
-                  )}
-                </div>
-              </div>
-            );
-          })}
+          <CarouselTrack
+            slides={slides}
+            pos={pos}
+            slideWidth={slideWidth}
+            accent={accent}
+          />
         </div>
 
         {/* Desktop navigation buttons */}
@@ -310,21 +277,15 @@ export default function VideoCarousel({
 
       {/* Slide indicators */}
       <div className="mt-4 flex justify-center gap-2">
-        {VIDEOS.map((video, index) => (
-          <button
-            key={video.id}
-            type="button"
-            onClick={() => goTo(index + 1)}
-            aria-label={t("highlights.goto").replace("{n}", String(index + 1))}
-            aria-current={realIndex === index ? "true" : undefined}
-            className={clsx(
-              "h-2 rounded-full transition-all",
-              realIndex === index
-                ? clsx("w-6", accentBg)
-                : "w-2 bg-white/20 hover:bg-white/40",
-            )}
-          />
-        ))}
+        <SlideIndicatorList
+          videos={VIDEOS}
+          realIndex={realIndex}
+          accentBg={accentBg}
+          goToLabel={(index) =>
+            t("highlights.goto").replace("{n}", String(index + 1))
+          }
+          onSelect={(index) => goTo(index + 1)}
+        />
       </div>
     </section>
   );

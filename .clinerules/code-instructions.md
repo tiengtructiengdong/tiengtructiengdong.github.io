@@ -127,6 +127,7 @@ Ultracite enforces strict type safety, accessibility standards, and consistent c
 - Don't forget key props in iterators and collection literals.
 - Don't destructure props inside JSX components in Solid projects.
 - Don't define React components inside other components.
+- If a sub-component inside a component is more than 3 levels deep, or is rendered by a `.map` function, or is a very large conditional statement, split it into a separate component file and import it. The per-item JSX returned by a `.map` must be a dedicated imported component, and the `.map` itself must be extracted into a named variable (`items` / `list`) that is rendered as `{items}` — never inline `{data.map(...)}` in JSX. All conditional renderings (except simple string interpolations) must use `if` / `else` (early returns or named variables), never the `?` sign or `&&` to conditionally render JSX elements.
 - Don't use event handlers on non-interactive elements.
 - Don't assign to React component props.
 - Don't use both `children` and `dangerouslySetInnerHTML` props on the same element.

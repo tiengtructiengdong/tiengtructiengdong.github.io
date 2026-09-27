@@ -4,8 +4,8 @@
  * project grid/list by toggling visibility of [data-category]
  * items. Mounted on both desktop and mobile layouts.
  */
-import clsx from "clsx";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import FilterButtonList from "./filter-button-list";
 
 export interface ProjectFilterProps {
   /** Selector for the list/grid container rendered by Astro. */
@@ -58,21 +58,13 @@ export default function ProjectFilter({
     }
   }, [active, containerSelector, itemSelector]);
 
-  const buttons = useMemo(
-    () =>
-      categories.map((cat) => (
-        <button
-          key={cat}
-          type="button"
-          className={clsx("project-filter__btn", cat === active && "is-active")}
-          onClick={(): void => setActive(cat)}
-          aria-pressed={cat === active}
-        >
-          {cat}
-        </button>
-      )),
-    [categories, active],
+  return (
+    <div className="project-filter">
+      <FilterButtonList
+        categories={categories}
+        active={active}
+        onSelect={setActive}
+      />
+    </div>
   );
-
-  return <div className="project-filter">{buttons}</div>;
 }

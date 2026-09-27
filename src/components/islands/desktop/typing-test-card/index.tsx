@@ -28,6 +28,8 @@ import { generate } from "random-words";
 import { useTranslation } from "@lib/i18n";
 import { CARD, ACCENT_HEADING } from "@lib/classes";
 import { MUTED_MONO } from "./classes";
+import TypedCharacterList from "./typed-character-list";
+import TypingResultOverlay from "./typing-result-overlay";
 
 /** Test duration, in seconds. */
 const TEST_DURATION = 60;
@@ -261,12 +263,14 @@ export default function TypingTestCard() {
     [status, target],
   );
 
-  const liveAccuracy =
-    status === "finished"
-      ? accuracy
-      : typed.length > 0
-        ? Math.round((correctChars / typed.length) * 100)
-        : 100;
+  let liveAccuracy: number;
+  if (status === "finished") {
+    liveAccuracy = accuracy;
+  } else if (typed.length > 0) {
+    liveAccuracy = Math.round((correctChars / typed.length) * 100);
+  } else {
+    liveAccuracy = 100;
+  }
   const finishedWpm = status === "finished" ? wpm : 0;
 
   return (
@@ -308,31 +312,11 @@ export default function TypingTestCard() {
           )}
           style={{ transform: `translateY(${translateY}px)` }}
         >
-          {target.split("").map((ch, i) => {
-            const typedCh = typed.at(i);
-            let cls = "text-white/25"; // untyped
-            if (i < typed.length) {
-              cls =
-                typedCh === ch
-                  ? "text-emerald-400"
-                  : ch === " "
-                    ? "text-red-400 bg-red-500/20 rounded"
-                    : "text-red-400";
-            }
-            const isCurrent = i === typed.length && status !== "finished";
-            return (
-              <span
-                key={i}
-                className={clsx(
-                  cls,
-                  isCurrent &&
-                    "rounded bg-cyan-400/20 text-white animate-pulse",
-                )}
-              >
-                {ch === " " ? "\u00A0" : ch}
-              </span>
-            );
-          })}
+          <TypedCharacterList
+            target={target}
+            typed={typed}
+            isFinished={status === "finished"}
+          />
         </div>
 
         {/* Hidden input that owns keyboard focus & captures keystrokes */}
@@ -356,44 +340,16 @@ export default function TypingTestCard() {
         />
 
         {/* Finished result overlay */}
-        {status === "finished" && (
-          <div
-            className={clsx(
-              "absolute inset-0 flex items-center justify-center",
-              "gap-8 bg-black/55 backdrop-blur-[1px]",
-            )}
-          >
-            <p className={clsx(MUTED_MONO, "text-cyan-400")}>
-              {t("typing_test.finished")}
-            </p>
-            <div className="flex items-baseline gap-2">
-              <span
-                className={clsx(
-                  "font-mono text-4xl font-semibold",
-                  "text-[var(--color-fg)]",
-                )}
-              >
-                {finishedWpm}
-              </span>
-              <span className="font-mono text-xs text-[var(--color-fg-muted)]">
-                {t("typing_test.wpm")}
-              </span>
-            </div>
-            <div
-              className={clsx(
-                "flex gap-4 font-mono text-xs",
-                "text-[var(--color-fg)]",
-              )}
-            >
-              <span>
-                {t("typing_test.accuracy")}: {liveAccuracy}%
-              </span>
-              <span>
-                {t("typing_test.words")}: {wordCount}
-              </span>
-            </div>
-          </div>
-        )}
+        <TypingResultOverlay
+          status={status}
+          finishedLabel={t("typing_test.finished")}
+          wpmLabel={t("typing_test.wpm")}
+          accuracyLabel={t("typing_test.accuracy")}
+          wordsLabel={t("typing_test.words")}
+          finishedWpm={finishedWpm}
+          liveAccuracy={liveAccuracy}
+          wordCount={wordCount}
+        />
       </div>
 
       {/* Footer: hint */}

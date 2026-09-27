@@ -9,26 +9,12 @@
  */
 import { useState, useEffect, useCallback } from "react";
 import type { WorkHistoryEntry } from "@lib/work-history";
-import { workHistory, formatDateRange } from "@lib/work-history";
+import { workHistory } from "@lib/work-history";
 import { readViewport } from "@lib/viewport";
 import { useTranslation } from "@lib/i18n";
 import { CARD, ACCENT_HEADING } from "@lib/classes";
-import {
-  TIMELINE_ITEM,
-  TIMELINE_DOT,
-  TIMELINE_LINE,
-  TIMELINE_CONTENT,
-  COMPANY_NAME,
-} from "./classes";
-import {
-  PERIOD_TEXT,
-  MODAL_OVERLAY,
-  MODAL_WINDOW,
-  MODAL_TITLE_BAR,
-  TRAFFIC_LIGHT,
-  MODAL_BODY,
-} from "../classes";
-import CompanyDetailContent from "../company-detail-content";
+import CompanyDetailModal from "./company-detail-modal";
+import TimelineEntryList from "./timeline-entry-list";
 import clsx from "clsx";
 
 export default function WorkHistoryCard() {
@@ -93,75 +79,18 @@ export default function WorkHistoryCard() {
           {t("company_history.title")}
         </h2>
         <div className="flex flex-col">
-          {workHistory.map((entry) => (
-            <div key={entry.slug} className={TIMELINE_ITEM}>
-              <div className="relative flex flex-col items-center">
-                <div className={TIMELINE_DOT} />
-                <div className={TIMELINE_LINE} />
-              </div>
-              <div
-                className={clsx(TIMELINE_CONTENT, "flex flex-row")}
-                onClick={() => handleCompanyClick(entry)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleCompanyClick(entry);
-                  }
-                }}
-              >
-                <div className="flex-1">
-                  <div className={clsx(COMPANY_NAME, "flex-1")}>
-                    {entry.company_name}
-                  </div>
-                  <div className={PERIOD_TEXT}>
-                    {formatDateRange(entry.date_from, entry.date_to)}
-                  </div>
-                </div>
-                {entry.image_url && (
-                  <img
-                    src={entry.image_url}
-                    alt={`${entry.company_name} logo`}
-                    className="h-14 w-14 rounded-md object-cover"
-                  />
-                )}
-              </div>
-            </div>
-          ))}
+          <TimelineEntryList
+            entries={workHistory}
+            onClick={handleCompanyClick}
+          />
         </div>
       </div>
 
-      {selected && isDesktop && (
-        <div
-          className={MODAL_OVERLAY}
-          onClick={closeModal}
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className={MODAL_WINDOW} onClick={(e) => e.stopPropagation()}>
-            <div className={MODAL_TITLE_BAR}>
-              <span
-                className={clsx(TRAFFIC_LIGHT, "bg-red-500 hover:bg-red-400")}
-                onClick={closeModal}
-                aria-label="Close"
-              />
-              <span className={clsx(TRAFFIC_LIGHT, "bg-yellow-500")} />
-              <span className={clsx(TRAFFIC_LIGHT, "bg-green-500")} />
-              <span
-                className={clsx(
-                  "ml-2 font-mono text-xs",
-                  "text-[var(--color-fg-muted)]",
-                )}
-              >
-                {selected.company_name}
-              </span>
-            </div>
-            <div className={MODAL_BODY}>
-              <CompanyDetailContent entry={selected} />
-            </div>
-          </div>
-        </div>
-      )}
+      <CompanyDetailModal
+        entry={selected}
+        isDesktop={isDesktop}
+        onClose={closeModal}
+      />
     </>
   );
 }

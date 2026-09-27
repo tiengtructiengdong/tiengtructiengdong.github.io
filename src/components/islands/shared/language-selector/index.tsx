@@ -16,6 +16,8 @@ import { useTranslation } from "@lib/i18n";
 import type { Locale } from "@lib/i18n";
 import clsx from "clsx";
 import { useEffect } from "react";
+import LanguageButtonList from "./language-button-list";
+import LanguageOptionList from "./language-option-list";
 
 const LOCALES: { value: Locale; label: string }[] = [
   { value: "en", label: "EN" },
@@ -70,17 +72,11 @@ export default function LanguageSelector({
         role="group"
         aria-label="Language"
       >
-        {LOCALES.map(({ value, label }) => (
-          <button
-            key={value}
-            type="button"
-            className={clsx("lang-selector__btn", value === locale && "lang-selector__btn--active")}
-            onClick={() => handleChange(value)}
-            aria-pressed={value === locale}
-          >
-            {label}
-          </button>
-        ))}
+        <LanguageButtonList
+          locales={LOCALES}
+          locale={locale}
+          onSelect={handleChange}
+        />
       </div>
     );
   }
@@ -92,11 +88,7 @@ export default function LanguageSelector({
       onChange={(e) => handleChange(e.target.value as Locale)}
       aria-label="Language"
     >
-      {LOCALES.map(({ value, label }) => (
-        <option key={value} value={value}>
-          {label}
-        </option>
-      ))}
+      <LanguageOptionList locales={LOCALES} />
     </select>
   );
 }
