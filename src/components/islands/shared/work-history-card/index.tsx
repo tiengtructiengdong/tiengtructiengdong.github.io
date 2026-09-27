@@ -8,13 +8,10 @@
  * - Mobile: clicking navigates to /company/{slug} (real page).
  */
 import { useState, useEffect, useCallback } from "react";
-import { useAtom } from "jotai";
 import type { WorkHistoryEntry } from "@lib/work-history";
 import { workHistory, formatDateRange } from "@lib/work-history";
 import { readViewport } from "@lib/viewport";
-import { languageAtom } from "@stores/info";
-import { t } from "@lib/i18n";
-import type { Locale } from "@lib/i18n";
+import { useTranslation } from "@lib/i18n";
 import { CARD, ACCENT_HEADING } from "@lib/classes";
 import {
   TIMELINE_ITEM,
@@ -35,7 +32,7 @@ import CompanyDetailContent from "../company-detail-content";
 import clsx from "clsx";
 
 export default function WorkHistoryCard() {
-  const [locale] = useAtom(languageAtom);
+  const { t } = useTranslation();
   const [selected, setSelected] = useState<WorkHistoryEntry | null>(null);
   const [isDesktop, setIsDesktop] = useState(false);
 
@@ -93,7 +90,7 @@ export default function WorkHistoryCard() {
     <>
       <div className={CARD}>
         <h2 className={clsx(ACCENT_HEADING, "mb-4")}>
-          {t(locale as Locale, "company_history.title")}
+          {t("company_history.title")}
         </h2>
         <div className="flex flex-col">
           {workHistory.map((entry) => (

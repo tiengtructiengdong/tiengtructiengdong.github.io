@@ -2,17 +2,20 @@
  * language-selector/index.tsx
  * A dropdown / button-group to switch the site language.
  *
- * Reads/writes the persisted languageAtom (atomWithStorage).
- * No page reload — the locale is stored in localStorage and
- * consumed by client-side components via the Jotai atom.
+ * Uses `atomWithStorage` from jotai/utils to persist the language choice to
+ * localStorage. The atom is the source of truth; a `useEffect` syncs changes
+ * to the i18next singleton so every `useTranslation()` consumer re-renders
+ * reactively.
  *
  * Hydrated with client:load or client:idle.
  */
 
 import { useAtom } from "jotai";
-import { languageAtom } from "@stores/info";
-import type { Locale } from "@stores/info";
+import { languageAtom } from "@stores/language";
+import { useTranslation } from "@lib/i18n";
+import type { Locale } from "@lib/i18n";
 import clsx from "clsx";
+import { useEffect } from "react";
 
 const LOCALES: { value: Locale; label: string }[] = [
   { value: "en", label: "EN" },
@@ -32,6 +35,26 @@ export default function LanguageSelector({
   inline = false,
 }: LanguageSelectorProps): React.ReactElement {
   const [locale, setLocale] = useAtom(languageAtom);
+  const { i18n } = useTranslation();
+
+  // Sync atom → i18next when the user picks a language.
+  useEffect(() => {
+    if (i18n.language !== locale) {
+      i18n.changeLanguage(locale);
+    }
+  }, [locale, i18n]);
+
+  // Sync i18next → atom when the language changes from outside
+  // (e.g. setGlobalLocale called from devtools or another component).
+  useEffect(() => {
+    const handler = (lng: string) => {
+      setLocale(lng as Locale);
+    };
+    i18n.on("languageChanged", handler);
+    return () => {
+      i18n.off("languageChanged", handler);
+    };
+  }, [i18n, setLocale]);
 
   function handleChange(next: Locale): void {
     if (next === locale) {

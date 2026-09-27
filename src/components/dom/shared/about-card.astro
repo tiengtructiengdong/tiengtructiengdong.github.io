@@ -2,27 +2,38 @@
 /**
  * about-card.astro
  * Static "About" card (Zero JS).
- * Uses locale keys: about.title, about.bio
+ * Uses locale keys: about.title, and `bioKey` (defaults to about.bio).
  */
-import clsx from "clsx";
-import { useTranslations } from "@lib/i18n";
+import { BODY, CARD } from "@lib/classes";
 import type { Locale } from "@lib/i18n";
-import { CARD, ACCENT_HEADING, BODY } from "@lib/classes";
+import { useTranslations } from "@lib/i18n";
+import clsx from "clsx";
 
 export interface Props {
   lang?: Locale;
   class?: string;
+  /** Accent Tailwind colour class for the heading. Defaults to cyan. */
+  accentClassName?: string;
 }
 
-const { lang: locale = "en", class: className = "" } = Astro.props;
+const {
+  lang: locale = "en",
+  class: className = "",
+  accentClassName,
+} = Astro.props;
 const t = useTranslations(locale);
+
+const headingClass = clsx(
+  "font-mono text-base font-medium mb-3",
+  accentClassName ?? "text-cyan-400",
+);
 ---
 
 <div class={clsx(CARD, className)}>
-  <h2 class={clsx(ACCENT_HEADING, "mb-3")}>
+  <h2 class={headingClass}>
     {t("about.title")}
   </h2>
   <p class={BODY}>
-    {t("about.bio")}
+    {t('about.bio')}
   </p>
 </div>

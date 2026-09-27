@@ -4,8 +4,8 @@
  * project grid/list by toggling visibility of [data-category]
  * items. Mounted on both desktop and mobile layouts.
  */
-import { useEffect, useMemo, useState } from "react";
 import clsx from "clsx";
+import { useEffect, useMemo, useState } from "react";
 
 export interface ProjectFilterProps {
   /** Selector for the list/grid container rendered by Astro. */

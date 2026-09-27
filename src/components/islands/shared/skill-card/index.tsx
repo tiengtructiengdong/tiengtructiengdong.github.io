@@ -8,28 +8,39 @@
  *
  * Hydrated client-side (client:load or client:visible).
  */
-import { useState, useEffect, useCallback } from "react";
-import { useAtom } from "jotai";
-import clsx from "clsx";
-import { languageAtom } from "@stores/info";
-import { t } from "@lib/i18n";
-import type { Locale } from "@lib/i18n";
+
+import { ACCENT_HEADING, CARD } from "@lib/classes";
+import { useTranslation } from "@lib/i18n";
+import type { Skill, SkillCategory } from "@lib/skills";
+import { formatExperiencedSince, skillCategories } from "@lib/skills";
 import { readViewport } from "@lib/viewport";
-import type { Skill } from "@lib/skills";
-import { skillCategories, formatExperiencedSince } from "@lib/skills";
-import { CARD, ACCENT_HEADING } from "@lib/classes";
+import clsx from "clsx";
+import { useCallback, useEffect, useState } from "react";
 import {
-  MODAL_OVERLAY,
-  MODAL_WINDOW,
-  MODAL_TITLE_BAR,
-  TRAFFIC_LIGHT,
   MODAL_BODY,
+  MODAL_OVERLAY,
+  MODAL_TITLE_BAR,
+  MODAL_WINDOW,
+  TRAFFIC_LIGHT,
 } from "../classes";
 
-export default function SkillCard() {
-  const [locale] = useAtom(languageAtom);
+export default function SkillCard({
+  className = "",
+  categories = skillCategories,
+  accentClassName,
+}: {
+  className?: string;
+  categories?: SkillCategory[];
+  accentClassName?: string;
+}): React.ReactElement {
+  const { t } = useTranslation();
   const [isDesktop, setIsDesktop] = useState(false);
   const [activeSkill, setActiveSkill] = useState<Skill | null>(null);
+
+  const titleClass = clsx(
+    "font-mono text-base font-medium mb-4",
+    accentClassName ?? "text-cyan-400",
+  );
 
   useEffect(() => {
     const update = () => setIsDesktop(readViewport().isDesktop);
@@ -65,13 +76,13 @@ export default function SkillCard() {
 
   return (
     <>
-      <div className={clsx(CARD, "overflow-visible h-full select-none")}>
-        <h2 className={clsx(ACCENT_HEADING, "mb-4")}>
-          {t(locale as Locale, "skills.title")}
-        </h2>
+      <div
+        className={clsx(CARD, "overflow-visible h-full select-none", className)}
+      >
+        <h2 className={titleClass}>{t("skills.title")}</h2>
 
         <div className="flex flex-row gap-6">
-          {skillCategories.map((group) => (
+          {categories.map((group) => (
             <section
               key={group.category}
               className={clsx(
@@ -95,7 +106,7 @@ export default function SkillCard() {
                       </span>
                       <span className="font-mono text-[10px] text-[var(--color-fg-muted)]">
                         {formatExperiencedSince(skill.experienced_since)}{" "}
-                        {t(locale as Locale, "skills.years")}
+                        {t("skills.years")}
                       </span>
                     </div>
 
@@ -173,12 +184,12 @@ export default function SkillCard() {
             </div>
             <div className={MODAL_BODY}>
               <div className="mb-3 flex items-baseline justify-between gap-2">
-                <span className="font-mono text-sm text-[var(--color-fg)]">
+                <span className="font-mono text-base text-[var(--color-fg)]">
                   {activeSkill.name}
                 </span>
                 <span className="font-mono text-xs text-[var(--color-fg-muted)]">
                   {formatExperiencedSince(activeSkill.experienced_since)}{" "}
-                  {t(locale as Locale, "skills.years")}
+                  {t("skills.years")}
                 </span>
               </div>
               <div

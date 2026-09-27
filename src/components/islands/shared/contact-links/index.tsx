@@ -33,7 +33,7 @@ export default function ContactLinks({
   const buttonClass = clsx(
     "inline-flex items-center justify-center gap-2 rounded-lg",
     "border border-white/10 bg-white/5 px-4 py-2",
-    "font-mono text-sm text-[var(--color-fg)]",
+    "font-mono text-base text-[var(--color-fg)]",
     "transition-colors hover:bg-white/10",
   );
 
@@ -45,7 +45,10 @@ export default function ContactLinks({
       )}
     >
       <a href={`tel:${contact.phone}`} className={buttonClass}>
-        <FaSquarePhone aria-hidden="true" className={clsx("h-4 w-4", iconClass)} />
+        <FaSquarePhone
+          aria-hidden="true"
+          className={clsx("h-4 w-4", iconClass)}
+        />
         <span>{contact.phoneDisplay}</span>
       </a>
       <a href={`mailto:${contact.email}`} className={buttonClass}>

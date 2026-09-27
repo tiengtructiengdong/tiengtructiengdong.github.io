@@ -1,0 +1,28 @@
+[
+	{
+		"category": "Video Editing",
+		"skills": [
+			{
+				"name": "Premiere Pro",
+				"efficiency": 0.9,
+				"experienced_since": 1630454400000,
+				"color": "#9999ff",
+				"extra_notes": "Narrative editing, multi-cam workflows, color grading with Lumetri, and fast turnarounds for social and long-form content."
+			},
+			{
+				"name": "DaVinci Resolve",
+				"efficiency": 0.5,
+				"experienced_since": 1725148800000,
+				"color": "#ff6b35",
+				"extra_notes": "Node-based color grading, Fusion composites, and round-tripping with Premiere for finishing."
+			},
+			{
+				"name": "Photoshop",
+				"efficiency": 0.95,
+				"experienced_since": 1598918400000,
+				"color": "#31a8ff",
+				"extra_notes": "Retouching, compositing, and key-art / thumbnail design for video deliverables."
+			}
+		]
+	}
+]

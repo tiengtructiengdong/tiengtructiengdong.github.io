@@ -23,12 +23,9 @@ import {
   useCallback,
   useMemo,
 } from "react";
-import { useAtom } from "jotai";
 import clsx from "clsx";
 import { generate } from "random-words";
-import { languageAtom } from "@stores/info";
-import { t } from "@lib/i18n";
-import type { Locale } from "@lib/i18n";
+import { useTranslation } from "@lib/i18n";
 import { CARD, ACCENT_HEADING } from "@lib/classes";
 import { MUTED_MONO } from "./classes";
 
@@ -57,8 +54,7 @@ function countCorrect(typed: string, target: string): number {
 }
 
 export default function TypingTestCard() {
-  const [locale] = useAtom(languageAtom);
-  const loc = locale as Locale;
+  const { t } = useTranslation();
 
   const [status, setStatus] = useState<Status>("idle");
   const [words, setWords] = useState<string[]>(() => makeWords());
@@ -276,18 +272,18 @@ export default function TypingTestCard() {
   return (
     <div className={clsx(CARD, "overflow-visible h-full select-none")}>
       <div className="mb-4 flex items-baseline justify-between gap-4">
-        <h2 className={clsx(ACCENT_HEADING)}>{t(loc, "typing_test.title")}</h2>
+        <h2 className={clsx(ACCENT_HEADING)}>{t("typing_test.title")}</h2>
         <div className="flex items-center gap-4 font-mono text-xs">
           <Stat
-            label={t(loc, "typing_test.time")}
+            label={t("typing_test.time")}
             value={`${Math.ceil(timeLeft)}s`}
           />
-          <Stat label={t(loc, "typing_test.wpm")} value={`${wpm}`} />
+          <Stat label={t("typing_test.wpm")} value={`${wpm}`} />
           <Stat
-            label={t(loc, "typing_test.accuracy")}
+            label={t("typing_test.accuracy")}
             value={`${liveAccuracy}%`}
           />
-          <Stat label={t(loc, "typing_test.words")} value={`${wordCount}`} />
+          <Stat label={t("typing_test.words")} value={`${wordCount}`} />
         </div>
       </div>
 
@@ -356,7 +352,7 @@ export default function TypingTestCard() {
           autoCorrect="off"
           autoCapitalize="off"
           spellCheck={false}
-          aria-label={t(loc, "typing_test.title")}
+          aria-label={t("typing_test.title")}
         />
 
         {/* Finished result overlay */}
@@ -368,7 +364,7 @@ export default function TypingTestCard() {
             )}
           >
             <p className={clsx(MUTED_MONO, "text-cyan-400")}>
-              {t(loc, "typing_test.finished")}
+              {t("typing_test.finished")}
             </p>
             <div className="flex items-baseline gap-2">
               <span
@@ -380,7 +376,7 @@ export default function TypingTestCard() {
                 {finishedWpm}
               </span>
               <span className="font-mono text-xs text-[var(--color-fg-muted)]">
-                {t(loc, "typing_test.wpm")}
+                {t("typing_test.wpm")}
               </span>
             </div>
             <div
@@ -390,10 +386,10 @@ export default function TypingTestCard() {
               )}
             >
               <span>
-                {t(loc, "typing_test.accuracy")}: {liveAccuracy}%
+                {t("typing_test.accuracy")}: {liveAccuracy}%
               </span>
               <span>
-                {t(loc, "typing_test.words")}: {wordCount}
+                {t("typing_test.words")}: {wordCount}
               </span>
             </div>
           </div>
@@ -403,7 +399,7 @@ export default function TypingTestCard() {
       {/* Footer: hint */}
       <div className="mt-4 flex items-center justify-between gap-4">
         <p className={clsx(MUTED_MONO, "truncate")}>
-          {t(loc, "typing_test.hint")}
+          {t("typing_test.hint")}
         </p>
       </div>
     </div>
@@ -422,7 +418,7 @@ function Stat({ label, value }: { label: string; value: string }) {
       >
         {label}
       </span>
-      <span className="text-sm text-[var(--color-fg)]">{value}</span>
+      <span className="text-base text-[var(--color-fg)]">{value}</span>
     </div>
   );
 }

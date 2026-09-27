@@ -3,12 +3,9 @@
  * Shared content for a single work history entry.
  * Used in both the desktop modal and the mobile detail page.
  */
-import { useAtom } from "jotai";
 import type { WorkHistoryEntry } from "@lib/work-history";
 import { formatDateRange } from "@lib/work-history";
-import { languageAtom } from "@stores/info";
-import { t } from "@lib/i18n";
-import type { Locale } from "@lib/i18n";
+import { useTranslation } from "@lib/i18n";
 import { ACCENT_HEADING, BODY } from "@lib/classes";
 import { PERIOD_TEXT } from "../classes";
 import { PROJECT_CARD, TECH_BADGE } from "./classes";
@@ -21,11 +18,16 @@ export interface CompanyDetailContentProps {
 export default function CompanyDetailContent({
   entry,
 }: CompanyDetailContentProps) {
-  const [locale] = useAtom(languageAtom);
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col gap-6">
       {/* Header: company name + period */}
-      <div className={clsx("flex flex-wrap items-baseline justify-between", "gap-2")}>
+      <div
+        className={clsx(
+          "flex flex-wrap items-baseline justify-between",
+          "gap-2",
+        )}
+      >
         <h2 className={clsx(ACCENT_HEADING, "text-lg font-semibold")}>
           {entry.company_name}
         </h2>
@@ -62,12 +64,22 @@ export default function CompanyDetailContent({
       {/* Projects */}
       <div className="flex flex-col gap-4">
         <h3 className={ACCENT_HEADING}>
-          {t(locale as Locale, "company_history.projects")}
+          {t("company_history.projects")}
         </h3>
         {entry.projects.map((project) => (
           <div key={project.name} className={PROJECT_CARD}>
-            <div className={clsx("mb-2 flex flex-wrap items-baseline justify-between", "gap-2")}>
-              <h4 className={clsx("font-mono text-sm font-medium", "text-[var(--color-fg)]")}>
+            <div
+              className={clsx(
+                "mb-2 flex flex-wrap items-baseline justify-between",
+                "gap-2",
+              )}
+            >
+              <h4
+                className={clsx(
+                  "font-mono text-base font-medium",
+                  "text-[var(--color-fg)]",
+                )}
+              >
                 {project.name}
               </h4>
               {project.url && (
@@ -80,7 +92,7 @@ export default function CompanyDetailContent({
                     "transition-colors hover:text-cyan-300",
                   )}
                 >
-                  {t(locale as Locale, "company_history.link")} ↗
+                  {t("company_history.link")} ↗
                 </a>
               )}
             </div>

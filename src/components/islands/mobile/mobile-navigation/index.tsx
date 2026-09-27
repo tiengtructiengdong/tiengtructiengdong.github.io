@@ -5,8 +5,8 @@
  *
  * Hydrated with client:load so it works without JS-dependent markup.
  */
-import { useEffect, useState, useCallback } from "react";
 import clsx from "clsx";
+import { useCallback, useEffect, useState } from "react";
 
 const NAV_ITEMS = [
   { label: "Work", href: "/dev#work" },
@@ -27,7 +27,8 @@ export default function MobileNavigation({
   const close = useCallback((): void => setOpen(false), []);
 
   useEffect(() => {
-    const buttons = document.querySelectorAll<HTMLButtonElement>("[data-nav-toggle]");
+    const buttons =
+      document.querySelectorAll<HTMLButtonElement>("[data-nav-toggle]");
     const handlers: Array<() => void> = [];
     for (const btn of buttons) {
       const handler = (): void => {

@@ -17,7 +17,7 @@ export const CARD = clsx(
 
 // ── Typography ────────────────────────────────────────────────
 /** Accent heading (cyan, mono, small). */
-export const ACCENT_HEADING = "font-mono text-sm font-medium text-cyan-400";
+export const ACCENT_HEADING = "font-mono text-base font-medium text-cyan-400";
 
 /** Large accent heading (cyan, mono, for page titles). */
 export const ACCENT_HEADING_LG = clsx(
@@ -33,7 +33,7 @@ export const BODY_MUTED = clsx(
 
 /** Body text with default colour. */
 export const BODY = clsx(
-  "text-sm leading-relaxed text-[var(--color-fg)]",
+  "text-base leading-relaxed text-[var(--color-fg)]",
   "sm:text-base",
 );
 
@@ -49,7 +49,7 @@ export const ARTICLE_WIDE = clsx(
 
 /** Back-link style (mono, muted, hover transition). */
 export const BACK_LINK = clsx(
-  "font-mono text-sm text-[var(--color-fg-muted)]",
+  "font-mono text-base text-[var(--color-fg-muted)]",
   "transition-colors hover:text-[var(--color-fg)]",
 );
 
@@ -102,7 +102,7 @@ export const HEADER_BAR = clsx(
 
 /** Brand text (index page). */
 export const BRAND = clsx(
-  "font-mono text-sm font-semibold tracking-tight",
+  "font-mono text-base font-semibold tracking-tight",
   "text-[var(--color-fg)] sm:text-base",
 );
 

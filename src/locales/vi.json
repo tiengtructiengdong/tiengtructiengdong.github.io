@@ -29,7 +29,8 @@
   "about": {
     "title": "About",
     "heading": "About",
-    "bio": "Tôi là một lập trình viên full-stack và nhà công nghệ sáng tạo, yêu thích xây dựng những trải nghiệm tương tác với WebGL, đồ họa 3D và các công nghệ web hiện đại."
+    "bio": "Tôi là một lập trình viên full-stack và nhà công nghệ sáng tạo, yêu thích xây dựng những trải nghiệm tương tác với WebGL, đồ họa 3D và các công nghệ web hiện đại.",
+    "video_editor_bio": "Tôi là một nhà dựng phim và người kể chuyện bằng hình ảnh, đam mê tạo ra những câu chuyện hấp dẫn qua chuyển động. Từ nội dung ngắn trên mạng xã hội đến phim tài liệu dài tập, tôi thổi hồn vào câu chuyện qua nhịp điệu chính xác, chỉnh màu và thiết kế âm thanh."
   },
   "i_am_a": {
     "heading": "Tôi là một",
@@ -46,6 +47,12 @@
     "music_artist": "Music Artist",
     "phone": "Điện thoại",
     "email": "Email"
+  },
+  "highlights": {
+    "title": "Tiêu điểm",
+    "previous": "Video trước",
+    "next": "Video tiếp theo",
+    "goto": "Đi đến video {n}"
   },
   "meta": {
     "yearRange": "{year}"
